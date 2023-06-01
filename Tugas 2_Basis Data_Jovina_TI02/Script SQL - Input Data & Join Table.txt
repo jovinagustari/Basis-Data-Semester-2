@@ -1,0 +1,99 @@
+
+Script SQL untuk Input Data dan Join Table
+
+-- Input Data dan SELECT * setiap setelah input untuk mengecek data yang di input tadi
+
+-- Input Data kategori_kursus
+
+INSERT INTO kategori_kursus 
+VALUES (null, 'Programming'),(null, 'Database'),(null, 'Networking'),(null, 'Desain Grafis'),(null, 'Ms. Office');
+
+SELECT * FROM kategori_kursus;
+
+-- Input Data materi_kursus
+
+INSERT INTO materi_kursus VALUES 
+(null, 'PG01', 'Python Basic', 'Pada materi Python ini peserta akan belajar dasar-dasar pemrograman python seperti variabel, tipe data, operator, percabangan, perulangan, dsb.', 3, 2500000, 1),
+(null, 'DB01', 'MariaDB Basic', 'Pada materi MariaDB ini peserta akan belajar dasar-dasar pembuatan database dengan sintaks SQL nya.', 2, 2000000, 2),
+(null, 'NW01', 'Pengantar Jaringan', 'Pada materi Pengantar Jaringan ini peserta akan belajar dasar-dasar jaringan mulai dari konsepnya, model OSI, topologi jaringan dan protokol jaringan.', 3, 2000000, 3),
+(null, 'DG01', 'Adobe Photoshop', 'Pada materi AP ini peserta akan belajar dasar-dasar mengenai Adobe Photoshop seperti pengenalan interface, tools dasar, teknik masking, visual effect, dsb.', 2, 2000000, 4),
+(null, 'MO01', 'Ms. Office', 'Pada materi Ms. Office ini peserta akan belajar dasar-dasar pada Ms. Office, seperti word, powerpoint, dan terutama excel, dsb.', 1, 1500000, 5);
+
+SELECT * FROM materi_kursus;
+
+-- Input Data pengajar
+
+INSERT INTO pengajar VALUES
+(null, '00100', 'Reno Rivaldi', 'Laki-Laki', '08312345678', 'renovaldi02@gmail.com', 'Margonda, Depok', 'pengajar1.jpg'),
+(null, '00101', 'Nur Haura Rizkiya', 'Perempuan', '08321234567', 'hauranoor19@gmail.com', 'Jagakarsa, Jakarta Selatan', 'pengajar2.jpg'),
+(null, '00102', 'Bagus Adi Wicaksono', 'Laki-Laki', '08771234567', 'bagussekali25@gmail.com', 'Cibubur, Jakarta Timur', 'pengajar3.jpg'),
+(null, '00103', 'Mutia Rani', 'Perempuan', '08326512345', 'mutiarani10@gmail.com', 'Gunung Putri, Bogor', 'pengajar4.jpg'),
+(null, '00104', 'Rizki Ramadhan', 'Laki-Laki', '08777612345', 'rizkiramadhan07@gmail.com', 'Cikeas, Bogor', 'pengajar5.jpg');
+
+SELECT * FROM pengajar;
+
+-- Input Data peserta
+
+INSERT INTO peserta VALUES
+(null, 'Dwi Tasya Maharani', 'Perempuan', '087742345678', 'tasyadwi01@gmail.com', 'Kelapa Dua, Depok', 'peserta1.jpg'),
+(null, 'Aditya Perkasa', 'Laki-Laki', '08328823456', 'adityaperkasa17@gmail.com', 'Serengseng Sawah, Jakarta Selatan', 'peserta2.jpg'),
+(null, 'Lia Diana Agustin', 'Perempuan', '087776523456', 'liadiana22@gmail.com', 'Cibubur, Jakarta Timur', 'peserta3.jpg'),
+(null, 'Diaz Pratama', 'Laki-Laki', '081211651234', 'pratamadiaz15@gmail.com', 'Margonda, Depok', 'peserta4.jpg'),
+(null, 'Zaid Ghifari', 'Laki-Laki', '08777812345', 'zaidghifari27@gmail.com', 'Cikeas, Bogor', 'peserta5.jpg');
+
+SELECT * FROM peserta;
+
+-- Input Data penjadwalan_kelas
+
+INSERT INTO penjadwalan_kelas VALUES
+(null, 'D1-101', 'PG09', 'Sabtu', '2023-02-10', '2023-05-10', '08:00:00', '11:00:00', 1, 5, 4),
+(null, 'D1-105', 'DB03', 'Rabu', '2023-01-25', '2023-04-25', '16:00:00', '18:00:00', 2, 1, 5),
+(null, 'D2-102', 'NW01', 'Minggu', '2023-02-15', '2023-05-15', '09:00:00', '12:00:00', 3, 3, 2),
+(null, 'D3-103', 'DG02', 'Kamis', '2023-03-05', '2023-05-05', '10:00:00', '12:00:00', 4, 4, 1),
+(null, 'D4-104', 'MO05', 'Jumat', '2023-02-10', '2023-03-30', '08:00:00', '09:00:00', 5, 2, 3);
+
+SELECT * FROM penjadwalan_kelas;
+
+* Masih kurang paham dari tabel penjadwalan_kelas ini, peserta_id kan hanya diisi untuk 1 peserta.
+* Jadi disetiap kolomnya jadwal hanya untuk 1 peserta?
+
+================================
+================================
+
+-- SQL untuk Join Table --
+
+-- INNER JOIN kategori_kursus & materi_kursus
+
+SELECT kategori_kursus.nama_kategori AS kategori, 
+materi_kursus.* FROM materi_kursus 
+INNER JOIN kategori_kursus ON kategori_kursus.id = materi_kursus.kategori_id;
+
+-- INNER JOIN kategori_kursus, materi_kursus, pengajar, peserta, & penjadwalan_kelas
+
+SELECT kategori_kursus.nama_kategori AS kategori, 
+materi_kursus.kode AS kode_materi, materi_kursus.nama_materi AS materi,
+penjadwalan_kelas.kode_kelas, penjadwalan_kelas.kelas,
+pengajar.nama AS nama_pengajar, pengajar.email AS email_pengajar,
+penjadwalan_kelas.hari, penjadwalan_kelas.jam_mulai,
+peserta.nama AS nama_peserta, peserta.email AS email_peserta FROM penjadwalan_kelas
+
+INNER JOIN materi_kursus ON materi_kursus.id = penjadwalan_kelas.materi_id
+INNER JOIN pengajar ON pengajar.id = penjadwalan_kelas.pengajar_id
+INNER JOIN peserta ON peserta.id = penjadwalan_kelas.peserta_id
+INNER JOIN kategori_kursus ON kategori_kursus.id = materi_kursus.kategori_id;
+
+
+-- INNER JOIN kategori_kursus, materi_kursus, pengajar, peserta, & penjadwalan_kelas
+   dengan pengaliasan nama tabel
+
+SELECT k.nama_kategori AS kategori, 
+m.kode AS kode_materi, m.nama_materi AS materi,
+j.kode_kelas, j.kelas,
+d.nama AS nama_pengajar, d.email AS email_pengajar,
+j.hari, j.jam_mulai,
+s.nama AS nama_peserta, s.email AS email_peserta FROM penjadwalan_kelas j
+
+INNER JOIN materi_kursus m ON m.id = j.materi_id
+INNER JOIN pengajar d ON d.id = j.pengajar_id
+INNER JOIN peserta s ON s.id = j.peserta_id
+INNER JOIN kategori_kursus k ON k.id = m.kategori_id;

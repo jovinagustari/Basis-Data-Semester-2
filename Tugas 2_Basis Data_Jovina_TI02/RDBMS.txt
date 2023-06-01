@@ -1,0 +1,12 @@
+Penjelasan RDBMS (Relational Database Management System)
+
+-- Relasi One to Many 
+Pada INNER JOIN 1 antara tabel kategori_kursus dan materi_kursus relasinya merupakan One to Many 
+karena 1 kategori dapat memiliki beberapa jenis materi.
+
+*hanya saja di tabel kategori yang dibuat masih memiliki 1 jenis materi saja, belum ada penambahan lagi.
+
+-- Relasi Many to Many 
+Pada Tabel penjadwalan_kelas merupakan relasi Many to Many karena tabel-tabel tersebut memiliki lebih dari satu record yang bisa saling terhubung, 
+jadi tabel penjadwalan_kelas merupakan tabel pendukung dengan tambahan beberapa field lainnya, seperti kode_kelas, kelas, hari dll.
+Begitu juga pada INNER JOIN 2 & 3, karena memiliki lebih dari 1 record yang saling terhubung dengan tabel lainnya.
