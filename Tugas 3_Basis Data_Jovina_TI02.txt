@@ -1,0 +1,321 @@
+Nama  : Jovina Gustari Juwita - 0110222225
+Kelas : TI02
+
+===================================================
+
+-- use db toko_online terlebih dulu
+use toko_online;
+
+--   1.	Buatlah trigger:
+--   a.	tambahiStok, jika ada penginputan transaksi di tabel suplai_produk, maka akan mentrigger bertambahnya stok 
+--      di tabel produk
+
+DELIMITER //
+CREATE TRIGGER tambahiStok
+	AFTER INSERT
+    ON suplai_produk
+    FOR EACH ROW
+BEGIN
+	-- Logical SQL
+    UPDATE produk SET stok = stok + NEW.jumlah
+    WHERE id = NEW.produk_id;
+END //
+DELIMITER ;
+
+
+--   b.	normalisasiStok, jika transaksi penginputan suplai_produk dibatalkan (delete), maka akan mentrigger stok  
+--      kembali normal di tabel produk
+
+DELIMITER //
+CREATE TRIGGER normalisasiStok
+	AFTER DELETE
+    ON suplai_produk
+    FOR EACH ROW
+BEGIN
+	-- Logical SQL
+    UPDATE produk SET stok = stok - OLD.jumlah
+    WHERE id = OLD.produk_id;
+END //
+DELIMITER ;
+
+
+===================================================
+
+
+--   2.	Lakukan query inner join tabel di skema data suplai barang:
+--      Tampilkan data tgl_suplai, nama produk, nama jenis, jumlah barang yang disuplai, 
+--      nama supplier (relasi 4 buah tabel)
+
+SELECT suplai_produk.tgl AS tgl_suplai, produk.nama AS nama_produk, 
+jenis.nama AS kategori, suplai_produk.jumlah AS jumlah_suplai, 
+suplier.nama AS supplier FROM suplai_produk
+
+INNER JOIN produk ON produk.id = suplai_produk.produk_id
+INNER JOIN jenis ON jenis.id = produk.jenis_id
+INNER JOIN suplier ON suplier.id = suplai_produk.suplier_id;
+
+
+===================================================
+
+
+--   3.	Buatlah user baru dengan izin akses user:
+--   a.	Roni izin akses hak penuh ke seluruh database dan tabel2 yang berada di dalamnya
+
+create user 'roni'@'localhost' identified by 'roni';
+grant all privileges on *.* to 'roni'@'localhost';
+flush privileges;
+
+-- masuk ke database dengan user roni untuk mengecek hak akses (di CMD)
+-- pastikan untuk keluar dari mariadb/mysql sebelum masuk dengan user baru
+
+C:\Users\JUWITA>mysql -u roni -p
+Enter password: ****
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 15
+Server version: 10.4.25-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| bmi_db             |
+| db_bmi             |
+| db_ecommerce1      |
+| db_jadwalkursus    |
+| db_koperasi        |
+| db_koperasi1       |
+| db_koperasi2       |
+| db_mahasswa        |
+| db_pegawai         |
+| dbkoperasi         |
+| dbpegawai          |
+| dbpengajuanpegawai |
+| dbpos              |
+| dbprojek           |
+| dbstore            |
+| dbtoko             |
+| dbtokobuku         |
+| dental_clinic      |
+| information_schema |
+| mysql              |
+| performance_schema |
+| phpmyadmin         |
+| test               |
+| toko_online        |
++--------------------+
+24 rows in set (0.002 sec)
+
+MariaDB [(none)]> show tables from toko_online;
++-----------------------+
+| Tables_in_toko_online |
++-----------------------+
+| jenis                 |
+| pelanggan             |
+| pesanan               |
+| produk                |
+| retur                 |
+| suplai_produk         |
+| suplier               |
++-----------------------+
+7 rows in set (0.002 sec)
+
+-- -------------------------------------------------
+
+--   b.	Desi izin akses hak ke database toko_online dan seluruh tabel yang berada di dalamnya
+
+create user 'desi'@'localhost' identified by 'desi1';
+grant all privileges on toko_online.* to 'desi'@'localhost';
+flush privileges;
+
+-- cek hak akses desi di cmd
+-- quit terlebih dulu jika diperlukan
+
+MariaDB [(none)]> quit
+Bye
+
+-- kemudian masuk menggunakan user desi
+
+C:\Users\JUWITA>mysql -u desi -p
+Enter password: *****
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 16
+Server version: 10.4.25-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| test               |
+| toko_online        |
++--------------------+
+3 rows in set (0.002 sec)
+
+-- dapat dilihat ketika user desi mencoba show databases, database yang ditampilkan hanya default dan 
+   toko_online yang merupakan hak akses desi
+
+MariaDB [(none)]> use toko_online;
+Database changed
+
+MariaDB [toko_online]> show tables;
++-----------------------+
+| Tables_in_toko_online |
++-----------------------+
+| jenis                 |
+| pelanggan             |
+| pesanan               |
+| produk                |
+| retur                 |
+| suplai_produk         |
+| suplier               |
++-----------------------+
+7 rows in set (0.002 sec)
+
+-- ---------------------------------------------
+
+--   c.	Zaki izin aksesnya hanya bisa menginput dan select data dari tabel jenis dan produk
+
+create user 'zaki'@'localhost' identified by 'zaki2';
+grant select, insert on toko_online.jenis to 'zaki'@'localhost';
+grant select, insert on toko_online.produk to 'zaki'@'localhost';
+flush privileges;
+
+-- quit jika diperlukan
+
+MariaDB [toko_online]> quit
+Bye
+
+-- kemudian masuk menggunakan user zaki
+
+C:\Users\JUWITA>mysql -u zaki -p
+Enter password: *****
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 17
+Server version: 10.4.25-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| test               |
+| toko_online        |
++--------------------+
+3 rows in set (0.002 sec)
+
+MariaDB [(none)]> use toko_online;
+Database changed
+
+MariaDB [toko_online]> show tables;
++-----------------------+
+| Tables_in_toko_online |
++-----------------------+
+| jenis                 |
+| produk                |
++-----------------------+
+2 rows in set (0.002 sec)
+
+MariaDB [toko_online]> select * from jenis;
++----+------------+
+| id | nama       |
++----+------------+
+|  1 | Elektronik |
+|  2 | Furniture  |
+|  4 | Makanan    |
+|  5 | Minuman    |
+|  3 | Souvenir   |
++----+------------+
+5 rows in set (0.025 sec)
+
+MariaDB [toko_online]> select * from produk;
++----+-------+--------------+---------+------+------+----------+
+| id | kode  | nama         | harga   | stok | foto | jenis_id |
++----+-------+--------------+---------+------+------+----------+
+|  1 | tv001 | TV 32 inchi  | 5000000 |    4 | NULL |        1 |
+|  2 | ac001 | AC           | 7000000 |    2 | NULL |        1 |
+|  3 | mj001 | Meja Belajar | 2000000 |    6 | NULL |        2 |
+|  4 | mj002 | Meja Makan   | 4000000 |   13 | NULL |        2 |
++----+-------+--------------+---------+------+------+----------+
+4 rows in set (0.001 sec)
+
+MariaDB [toko_online]> show grants for 'zaki'@'localhost';
++-------------------------------------------------------------------------------------------------------------+
+| Grants for zaki@localhost                                                                                   |
++-------------------------------------------------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO `zaki`@`localhost` IDENTIFIED BY PASSWORD '*D5A4C0A0021D0CC0B468A0F25BE4A17E5547B3A2' |
+| GRANT SELECT, INSERT ON `toko_online`.`produk` TO `zaki`@`localhost`                                        |
+| GRANT SELECT, INSERT ON `toko_online`.`jenis` TO `zaki`@`localhost`                                         |
++-------------------------------------------------------------------------------------------------------------+
+3 rows in set (0.010 sec)
+
+-- seperti yang dapat dilihat, user zaki hanya bisa mengakses tabel jenis & produk pada database toko_online
+
+
+===================================================
+
+
+--   4.	Mencabut hak akses:
+--   a.	Zaki dicabut hak akses meninput datanya pada tabel jenis & produk
+
+revoke insert on toko_online.produk from 'zaki'@'localhost';
+revoke insert on toko_online.jenis from 'zaki'@'localhost';
+flush privileges;
+
+-- cek hak akses zaki pada cmd
+
+MariaDB [toko_online]> show grants for 'zaki'@'localhost';
++-------------------------------------------------------------------------------------------------------------+
+| Grants for zaki@localhost                                                                                   |
++-------------------------------------------------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO `zaki`@`localhost` IDENTIFIED BY PASSWORD '*D5A4C0A0021D0CC0B468A0F25BE4A17E5547B3A2' |
+| GRANT SELECT ON `toko_online`.`produk` TO `zaki`@`localhost`                                                |
+| GRANT SELECT ON `toko_online`.`jenis` TO `zaki`@`localhost`                                                 |
++-------------------------------------------------------------------------------------------------------------+
+3 rows in set (0.001 sec)
+
+-- sekarang hak akses user zaki hanya untuk select(view) pada tabel jenis & produk
+
+-- ----------------------------------------
+
+--   b.	Desi dicabut seluruh hak asksesnya
+
+revoke all privileges on toko_online.* from 'desi'@'localhost';
+flush privileges;
+
+-- cek hak akses user desi pada cmd
+-- quit terlebih dulu jika diperlukan
+
+MariaDB [toko_online]> quit
+Bye
+
+-- masuk ke user desi dan cek hak aksesnya
+
+C:\Users\JUWITA>mysql -u desi -p
+Enter password: *****
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 18
+Server version: 10.4.25-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> use toko_online
+ERROR 1044 (42000): Access denied for user 'desi'@'localhost' to database 'toko_online'
+
+MariaDB [(none)]> quit
+Bye
+
+-- dapat dilihat hak akses desi pada db toko_online ditolak karena hak akses sudah dicabut
